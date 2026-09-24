@@ -6,7 +6,7 @@ from generator import generate_password
 
 
 # -----------------------------
-# Functions
+# Check Password
 # -----------------------------
 
 def check_password():
@@ -14,12 +14,10 @@ def check_password():
     password = password_entry.get()
 
     if not password:
-
         messagebox.showwarning(
-            "Password Required",
+            "Warning",
             "Please enter a password."
         )
-
         return
 
     score, strength, suggestions = analyze_password(password)
@@ -32,42 +30,33 @@ def check_password():
         text=f"Strength: {strength}"
     )
 
-    progress_width = score * 3
+    # Strength bar
+    bar_width = int(score * 4)
 
-    strength_bar.config(
-        width=progress_width
-    )
+    strength_bar.config(width=bar_width)
 
-    if strength == "WEAK":
-        strength_label.config(fg="#e74c3c")
-
-    elif strength == "MEDIUM":
-        strength_label.config(fg="#f39c12")
-
-    elif strength == "STRONG":
-        strength_label.config(fg="#27ae60")
-
-    else:
-        strength_label.config(fg="#16a085")
-
+    # Suggestions
     if suggestions:
 
         suggestion_text = "\n".join(
-            "• " + suggestion
-            for suggestion in suggestions
+            "• " + item
+            for item in suggestions
+        )
+
+        suggestions_label.config(
+            text="Suggestions:\n" + suggestion_text
         )
 
     else:
 
-        suggestion_text = (
-            "✓ Excellent password!\n"
-            "✓ No basic security improvements needed."
+        suggestions_label.config(
+            text="✓ No major weaknesses detected."
         )
 
-    suggestions_label.config(
-        text=suggestion_text
-    )
 
+# -----------------------------
+# Show / Hide Password
+# -----------------------------
 
 def toggle_password():
 
@@ -88,42 +77,38 @@ def toggle_password():
         )
 
 
+# -----------------------------
+# Generate Password
+# -----------------------------
+
 def generate():
 
     password = generate_password(16)
 
-    password_entry.delete(
-        0,
-        tk.END
-    )
+    password_entry.delete(0, tk.END)
 
-    password_entry.insert(
-        0,
-        password
-    )
+    password_entry.insert(0, password)
 
     check_password()
 
 
+# -----------------------------
+# Clear
+# -----------------------------
+
 def clear():
 
-    password_entry.delete(
-        0,
-        tk.END
-    )
+    password_entry.delete(0, tk.END)
 
     score_label.config(
-        text="Security Score: --/100"
+        text="Security Score: 0/100"
     )
 
     strength_label.config(
-        text="Strength: --",
-        fg="#34495e"
+        text="Strength: -"
     )
 
-    strength_bar.config(
-        width=0
-    )
+    strength_bar.config(width=0)
 
     suggestions_label.config(
         text=""
@@ -149,10 +134,6 @@ window.resizable(
     False
 )
 
-window.configure(
-    bg="#f4f6f7"
-)
-
 
 # -----------------------------
 # Header
@@ -160,7 +141,7 @@ window.configure(
 
 header = tk.Frame(
     window,
-    bg="#17202a",
+    bg="#1f2937",
     height=100
 )
 
@@ -170,75 +151,72 @@ header.pack(
 
 title = tk.Label(
     header,
-    text="🔐 Password Strength Analyzer",
+    text="Password Strength Analyzer",
     font=("Arial", 24, "bold"),
-    bg="#17202a",
-    fg="white"
+    fg="white",
+    bg="#1f2937"
 )
 
 title.pack(
-    pady=(22, 5)
+    pady=(20, 5)
 )
 
 subtitle = tk.Label(
     header,
-    text="Analyze your password security",
+    text="Analyze and generate secure passwords",
     font=("Arial", 11),
-    bg="#17202a",
-    fg="#d5dbdb"
+    fg="white",
+    bg="#1f2937"
 )
 
 subtitle.pack()
 
 
 # -----------------------------
-# Password input
+# Password Label
 # -----------------------------
 
-input_frame = tk.Frame(
+password_label = tk.Label(
     window,
-    bg="#f4f6f7"
-)
-
-input_frame.pack(
-    pady=30
-)
-
-input_label = tk.Label(
-    input_frame,
     text="Enter Password",
-    font=("Arial", 13, "bold"),
-    bg="#f4f6f7"
+    font=("Arial", 14, "bold")
 )
 
-input_label.pack(
-    anchor="w"
+password_label.pack(
+    pady=(30, 10)
 )
+
+
+# -----------------------------
+# Password Entry
+# -----------------------------
+
+password_frame = tk.Frame(window)
+
+password_frame.pack()
+
 
 password_entry = tk.Entry(
-    input_frame,
-    width=42,
-    show="*",
-    font=("Arial", 15),
-    relief="solid",
-    bd=1
+    password_frame,
+    width=35,
+    font=("Arial", 14),
+    show="*"
 )
 
 password_entry.pack(
     side="left",
-    pady=10
+    padx=5
 )
 
+
 show_button = tk.Button(
-    input_frame,
+    password_frame,
     text="Show",
-    command=toggle_password,
-    width=7
+    command=toggle_password
 )
 
 show_button.pack(
-    side="left",
-    padx=5
+    side="left"
 )
 
 
@@ -246,20 +224,17 @@ show_button.pack(
 # Buttons
 # -----------------------------
 
-button_frame = tk.Frame(
-    window,
-    bg="#f4f6f7"
+button_frame = tk.Frame(window)
+
+button_frame.pack(
+    pady=25
 )
 
-button_frame.pack()
 
 check_button = tk.Button(
     button_frame,
     text="Check Password",
     command=check_password,
-    bg="#3498db",
-    fg="white",
-    font=("Arial", 11, "bold"),
     width=18
 )
 
@@ -269,13 +244,11 @@ check_button.grid(
     padx=5
 )
 
+
 generate_button = tk.Button(
     button_frame,
     text="Generate Secure",
     command=generate,
-    bg="#27ae60",
-    fg="white",
-    font=("Arial", 11, "bold"),
     width=18
 )
 
@@ -284,6 +257,7 @@ generate_button.grid(
     column=1,
     padx=5
 )
+
 
 clear_button = tk.Button(
     button_frame,
@@ -300,65 +274,49 @@ clear_button.grid(
 
 
 # -----------------------------
-# Result
+# Score
 # -----------------------------
 
-result_frame = tk.Frame(
-    window,
-    bg="white",
-    padx=25,
-    pady=20
-)
-
-result_frame.pack(
-    fill="x",
-    padx=40,
-    pady=30
-)
-
 score_label = tk.Label(
-    result_frame,
-    text="Security Score: --/100",
-    font=("Arial", 17, "bold"),
-    bg="white"
+    window,
+    text="Security Score: 0/100",
+    font=("Arial", 18, "bold")
 )
 
-score_label.pack()
-
-strength_label = tk.Label(
-    result_frame,
-    text="Strength: --",
-    font=("Arial", 20, "bold"),
-    fg="#34495e",
-    bg="white"
-)
-
-strength_label.pack(
+score_label.pack(
     pady=10
 )
 
 
-# Strength bar background
+# -----------------------------
+# Strength
+# -----------------------------
 
-bar_background = tk.Frame(
-    result_frame,
-    bg="#ecf0f1",
-    height=15,
-    width=500
+strength_label = tk.Label(
+    window,
+    text="Strength: -",
+    font=("Arial", 16)
 )
 
-bar_background.pack()
+strength_label.pack(
+    pady=5
+)
 
-strength_bar = tk.Frame(
-    bar_background,
-    bg="#27ae60",
-    height=15,
+
+# -----------------------------
+# Strength Bar
+# -----------------------------
+
+strength_bar = tk.Label(
+    window,
+    text="",
+    bg="green",
+    height=1,
     width=0
 )
 
-strength_bar.place(
-    x=0,
-    y=0
+strength_bar.pack(
+    pady=10
 )
 
 
@@ -366,26 +324,21 @@ strength_bar.place(
 # Suggestions
 # -----------------------------
 
-suggestion_title = tk.Label(
-    window,
-    text="Security Recommendations",
-    font=("Arial", 14, "bold"),
-    bg="#f4f6f7"
-)
-
-suggestion_title.pack()
-
 suggestions_label = tk.Label(
     window,
     text="",
+    font=("Arial", 12),
     justify="left",
-    font=("Arial", 11),
-    bg="#f4f6f7"
+    wraplength=550
 )
 
 suggestions_label.pack(
-    pady=10
+    pady=20
 )
 
+
+# -----------------------------
+# Start Application
+# -----------------------------
 
 window.mainloop()
